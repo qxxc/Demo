@@ -1,16 +1,18 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const webpack = require('webpack');
 
 module.exports={
     context:path.resolve(__dirname,'src'),
+    mode:"production",
     entry:{
         index:'./index.js',
-        print:'./print.js'
     },
     output:{
         filename: '[name].bundle.js',
-        path: path.resolve(__dirname,'dist')
+        path: path.resolve(__dirname,'dist'),
+        publicPath:'/'
     },
     module:{
         rules:[
@@ -33,7 +35,7 @@ module.exports={
         new HtmlWebpackPlugin({
             title:'my webpack',
             template:'index.html',
-            filename:'admin.html',
+            filename:'index.html',
             meta:{
                 viewport:'width=device-width, initial-scale=1'
             },
@@ -50,6 +52,13 @@ module.exports={
             chunks:['print','index'],
             chunksSortMode:'auto'
         }),
-        new CleanWebpackPlugin(['dist'])
-    ]
+        new CleanWebpackPlugin(['dist']),
+        new webpack.NamedChunksPlugin(),
+        new webpack.HotModuleReplacementPlugin()
+    ],
+    devtool:'inline-source-map',
+    devServer:{
+        contentBase:'./dist',
+        hot:true
+    }
 }
