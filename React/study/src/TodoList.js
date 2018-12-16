@@ -1,14 +1,17 @@
 import React,{ Component,Fragment } from "react";
+import TodoItem from './TodoItem'
+import axios from 'axios'
 import './style.css'
 
 class TodoList extends Component{
 
     constructor(props){
         super(props);
-        this.state={
+        this.state = {
             inputValue:'',
             list:[]
         }
+        this.handleItemDelete = this.handleBtnClickItemDelete.bind(this)
     }
 
     render(){
@@ -25,32 +28,49 @@ class TodoList extends Component{
                         className='input'
                         value={this.state.inputValue}
                         onChange={this.handleInputChange.bind(this)}
+                        ref={ ( event ) => { this.input = event } }
                     />
-                    <button onClick={this.handleBtnClick.bind(this)}>提交</button>
+                    <button 
+                        onClick={this.handleBtnClick.bind(this)}
+                    >提交</button>
                 </div>
-                <ul>
+                <ul
+                    ref = {(event) => {this.ul = event}}
+                >
                     {
-                        this.state.list.map((item,index)=>{
-                            return (
-                            <li 
-                                key={index} 
-                                onClick={this.handleBtnClickItemDelete.bind(this,index)}
-                                dangerouslySetInnerHTML={{__html: item}}
-                            >
-                            </li>
-                            )
-                        })
+                        this.getTodoItem()
                     }
                 </ul>
             </Fragment>
         );
     }
 
+    componentDidMount(){
+        axios.get('./api/todolist').then((res) => {
+            alert('succ')
+        }).catch((error) => {
+            alert('error')
+        })
+    }
+
+    getTodoItem() {
+        return this.state.list.map(( item, index) => {
+            return(
+                <TodoItem
+                    key = { index }
+                    content = { item }
+                    index = { index }
+                    deleteItem = { this.handleItemDelete  }
+                />
+            )
+        })
+    }
+
     handleInputChange(e){
         // console.log(e);
         // console.log(this)
         this.setState({
-            inputValue:e.target.value
+            inputValue:this.input.value
         })
         //  this.state.inputValue=e.target.value  失败，不能直接改变
     }
@@ -59,7 +79,11 @@ class TodoList extends Component{
         this.setState({
             list:[...this.state.list, this.state.inputValue],
             inputValue:''
+        }, () => {
+            //console.log(this.state.list.length)
         })
+        //console.log(this.ul)
+        //console.log(this.state.list.length)
     }
 
     handleBtnClickItemDelete(index){
