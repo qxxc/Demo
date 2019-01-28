@@ -1,16 +1,17 @@
-import React ,{Component, Fragment} from 'react'
+import React ,{Component} from 'react'
 import 'antd/dist/antd.css';
-import { Input, Button, List } from 'antd'
 import store from './store'
-import { inputChangeAction, deleteItemAction, addItemAction } from './store/actionCreators'
+import { getInitList, inputChangeAction, deleteItemAction, addItemAction, getTodoList } from './store/actionCreators'
+import TodoListUI from './TodoListUI.js'
+import axios from 'axios'
 
-const data = [
-    'Racing car sprays burning fuel into crowd.',
-    'Japanese princess to wed commoner.',
-    'Australian walks 100km after outback crash.',
-    'Man charged over missing wedding girl.',
-    'Los Angeles battles huge wildfires.',
-  ];
+// const data = [
+//     'Racing car sprays burning fuel into crowd.',
+//     'Japanese princess to wed commoner.',
+//     'Australian walks 100km after outback crash.',
+//     'Man charged over missing wedding girl.',
+//     'Los Angeles battles huge wildfires.',
+//   ];
 
 class TodoList extends Component {
     
@@ -20,30 +21,32 @@ class TodoList extends Component {
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleStoreChange = this.handleStoreChange.bind(this);
         this.handleBtnClick = this.handleBtnClick.bind(this)
+        this.handleItemDelete = this.handleItemDelete.bind(this)
         store.subscribe(this.handleStoreChange);
+    }
+
+    componentDidMount() {
+        const action = getInitList();
+        store.dispatch(action);
+        console.log(action)
+        //const action = getTodoList();
+        //store.dispatch(action);
+        // axios.get('http://localhost:3001/api/mark/a').then(res => {
+        //     const data = initListAction(res.data);
+        //     store.dispatch(data)
+        // })
+        //const data = initListAction(['hello', 'dear', 'lee'])
     }
 
     render() {
         return (
-            <Fragment>
-                <div style={{margin: '10px'}}>
-                    <Input 
-                        placeholder="Basic usage" 
-                        style={{width: '300px', marginRight: '10px'}}
-                        value={this.state.inputValue}
-                        onChange={this.handleInputChange}
-                    />
-                    <Button type="primary" onClick={this.handleBtnClick}>提交</Button>
-                </div>
-                <div>
-                <List
-                    style={{margin: '10px', width: '300px'}}
-                    bordered
-                    dataSource={this.state.list}
-                    renderItem={(item, index) => (<List.Item onClick={this.handleItemDelete.bind(this, index)}>{item}</List.Item>)}
-                />
-                </div>
-             </Fragment>
+            <TodoListUI 
+                inputValue={this.state.inputValue}
+                handleInputChange={this.handleInputChange}
+                handleBtnClick={this.handleBtnClick}
+                list={this.state.list}
+                handleItemDelete={this.handleItemDelete}
+            />
         )
     }
 
